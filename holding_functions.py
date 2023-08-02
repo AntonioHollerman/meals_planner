@@ -2,6 +2,7 @@ import sqlite3
 import os
 import webbrowser
 from collections import namedtuple
+from typing import List
 
 db_conn = sqlite3.connect('recipes_info.sqlite', detect_types=sqlite3.PARSE_DECLTYPES)
 db_cur = db_conn.cursor()
@@ -76,7 +77,7 @@ def open_instructions(recipe_id: int):
         return False
 
 
-def all_saved_recipes():
+def all_saved_recipes() -> List[recipe_row]:
     """
     Returns every row
     :return: A list of rows that is a tuple that contains (recipe_id, recipe_name, recipe_ingredients, recipe_image,
@@ -147,3 +148,22 @@ def update_db(recipes: dict, all_ids):
             update_recipe(recipe)
         else:
             add_recipe(*recipe[1:])
+
+
+def recipes_for_meal_type(meal_type) -> List[recipe_row]:
+    """
+    Returns every row
+    :return: A list of rows that is a tuple that contains (recipe_id, recipe_name, recipe_ingredients, recipe_image,
+    recipe_desc, recipe_instructions, instructions_type)
+    """
+    db_cur.execute("SELECT recipe_id, recipe_name, recipe_ingredients, recipe_image, recipe_desc, recipe_instructions, "
+                   f"instructions_type, meal_type FROM recipes WHERE meal_type = '{meal_type}' ORDER BY recipe_id")
+    data = db_cur.fetchall()
+    to_return = []
+    for row in data:
+        recipe_id, recipe_name, recipe_ingredients, recipe_image, recipe_desc, recipe_instructions, \
+            instructions_type, meal_type = row
+        recipe_ingredients = recipe_ingredients.split("-(.o)0)0_-23")
+        to_return.append(recipe_row(recipe_id, recipe_name, recipe_ingredients, recipe_image, recipe_desc,
+                                    recipe_instructions, instructions_type, meal_type))
+    return to_return
