@@ -33,12 +33,16 @@ class RecipesWindow(tk.Tk):
             new_id = add_recipe('None', [], 'None', 'Nothing Here', 'None',
                                 "file_location", 'breakfast')
             self.lunches[new_id] = recipe_row(new_id, 'None', [], 'None', 'Nothing Here', 'None', "file_location",
-                                              'breakfast')
+                                              'lunch')
         if not self.dinners:
             new_id = add_recipe('None', [], 'None', 'Nothing Here', 'None',
                                 "file_location", 'breakfast')
             self.dinners[new_id] = recipe_row(new_id, 'None', [], 'None', 'Nothing Here', 'None', "file_location",
-                                              'breakfast')
+                                              'dinner')
+
+        self.breakfast_recipe = choice(list(self.breakfasts.values()))
+        self.lunch_recipe = choice(list(self.lunches.values()))
+        self.dinner_recipe = choice(list(self.dinners.values()))
 
         if holding_recipes:
             self.current_recipe = choice(holding_recipes)
@@ -76,33 +80,39 @@ class RecipesWindow(tk.Tk):
                 self.current_recipe = new_recipe
                 self.current_window.new_image = None
         else:
+            if self.current_meal == "breakfast":
+                self.current_recipe = self.breakfast_recipe
+            elif self.current_meal == 'lunch':
+                self.current_recipe = self.lunch_recipe
+            else:
+                self.current_recipe = self.dinner_recipe
             if self.current_window.breakfast_frame.new_image is not None:
-                new_recipe = recipe_row(self.current_recipe.recipe_id, self.current_recipe.recipe_name,
-                                        self.current_recipe.recipe_ingredients,
+                new_recipe = recipe_row(self.breakfast_recipe.recipe_id, self.breakfast_recipe.recipe_name,
+                                        self.breakfast_recipe.recipe_ingredients,
                                         self.current_window.breakfast_frame.new_image,
-                                        self.current_recipe.recipe_desc, self.current_recipe.recipe_instructions,
-                                        self.current_recipe.instructions_type, self.current_recipe.meal_type)
-                self.recipes[self.current_recipe.recipe_id] = new_recipe
-                self.current_recipe = new_recipe
+                                        self.breakfast_recipe.recipe_desc, self.breakfast_recipe.recipe_instructions,
+                                        self.breakfast_recipe.instructions_type, self.breakfast_recipe.meal_type)
+                self.breakfasts[self.breakfast_recipe.recipe_id] = new_recipe
                 self.current_window.new_image = None
+                self.current_recipe = new_recipe
             if self.current_window.lunch_frame.new_image is not None:
-                new_recipe = recipe_row(self.current_recipe.recipe_id, self.current_recipe.recipe_name,
-                                        self.current_recipe.recipe_ingredients,
+                new_recipe = recipe_row(self.lunch_recipe.recipe_id, self.lunch_recipe.recipe_name,
+                                        self.lunch_recipe.recipe_ingredients,
                                         self.current_window.lunch_frame.new_image,
-                                        self.current_recipe.recipe_desc, self.current_recipe.recipe_instructions,
-                                        self.current_recipe.instructions_type, self.current_recipe.meal_type)
-                self.recipes[self.current_recipe.recipe_id] = new_recipe
-                self.current_recipe = new_recipe
+                                        self.lunch_recipe.recipe_desc, self.lunch_recipe.recipe_instructions,
+                                        self.lunch_recipe.instructions_type, self.lunch_recipe.meal_type)
+                self.lunches[self.lunch_recipe.recipe_id] = new_recipe
                 self.current_window.new_image = None
+                self.current_recipe = new_recipe
             if self.current_window.dinner_frame.new_image is not None:
-                new_recipe = recipe_row(self.current_recipe.recipe_id, self.current_recipe.recipe_name,
-                                        self.current_recipe.recipe_ingredients,
+                new_recipe = recipe_row(self.dinner_recipe.recipe_id, self.dinner_recipe.recipe_name,
+                                        self.dinner_recipe.recipe_ingredients,
                                         self.current_window.dinner_frame.new_image,
-                                        self.current_recipe.recipe_desc, self.current_recipe.recipe_instructions,
-                                        self.current_recipe.instructions_type, self.current_recipe.meal_type)
-                self.recipes[self.current_recipe.recipe_id] = new_recipe
-                self.current_recipe = new_recipe
+                                        self.dinner_recipe.recipe_desc, self.dinner_recipe.recipe_instructions,
+                                        self.dinner_recipe.instructions_type, self.dinner_recipe.meal_type)
+                self.dinners[self.dinner_recipe.recipe_id] = new_recipe
                 self.current_window.new_image = None
+                self.current_recipe = new_recipe
         if framed_wanted == 'Edit Frame':
             self.frame_displayed = 'Edit Frame'
             self.current_window = EditFrame(self, self.current_recipe)
@@ -112,7 +122,7 @@ class RecipesWindow(tk.Tk):
             self.current_window = HomeFrame(self, self.current_recipe)
             self.current_window.grid(row=0, column=0, sticky="nesw")
         else:
-            if self.current_meal == "breakfasts":
+            if self.current_meal == "breakfast":
                 self.breakfasts = self.recipes.copy()
             elif self.current_meal == 'lunch':
                 self.lunches = self.recipes.copy()
@@ -136,7 +146,7 @@ class HomeFrame(ttk.Frame):
         self.edit_button = ttk.Button(self, text="Edit", command=self.edit_button)
         self.crate_button = ttk.Button(self, text="Add New Recipe", command=self.create_recipe)
         self.delete_button = ttk.Button(self, text="Delete", command=self.delete_recipe)
-        self.meals_button = ttk.Button(self, text="Back", compound=self.meals_frame)
+        self.meals_button = ttk.Button(self, text="Back", command=self.meals_frame)
 
         ttk.Label(self, text="Your recipes are below", justify="center", anchor="center").grid(row=0,
                                                                                                column=1, sticky="ew")
@@ -270,6 +280,15 @@ class HomeFrame(ttk.Frame):
         self.master_win.swap_frame('Edit Frame')
 
     def meals_frame(self):
+        if self.master_win.current_meal == "breakfast":
+            self.master_win.breakfast_recipe = self.current_recipe
+            self.master_win.breakfasts = self.master_win.recipes
+        elif self.master_win.current_meal == "lunch":
+            self.master_win.lunch_recipe = self.current_recipe
+            self.master_win.lunches = self.master_win.recipes
+        else:
+            self.master_win.dinner_recipe = self.current_recipe
+            self.master_win.dinners = self.master_win.recipes
         self.master_win.swap_frame('Meals Frame')
 
 
@@ -558,7 +577,7 @@ class MealsFrame(ttk.Frame):
         super().__init__(master)
         self.master_frame = master
 
-        ttk.Label(self, text="BreakFast").grid(row=0, column=0)
+        ttk.Label(self, text="Breakfast").grid(row=0, column=0)
         ttk.Label(self, text="Lunch").grid(row=0, column=1)
         ttk.Label(self, text="Dinner").grid(row=0, column=2)
 
@@ -569,15 +588,11 @@ class MealsFrame(ttk.Frame):
         self.lunch_random_button.grid(row=1, column=1)
         self.dinner_random_button.grid(row=1, column=2)
 
-        ttk.Separator(self).grid(row=2, column=0, sticky="ew")
+        ttk.Separator(self).grid(row=2, column=0, columnspan=3, sticky="ew")
 
-        self.breakfast_recipe = choice(list(self.master_frame.breakfasts.values()))
-        self.lunch_recipe = choice(list(self.master_frame.lunches.values()))
-        self.dinner_recipe = choice(list(self.master_frame.dinners.values()))
-
-        self.breakfast_frame = MealDisplayColumn(self, self.breakfast_recipe)
-        self.lunch_frame = MealDisplayColumn(self, self.lunch_recipe)
-        self.dinner_frame = MealDisplayColumn(self, self.dinner_recipe)
+        self.breakfast_frame = MealDisplayColumn(self, self.master_frame.breakfast_recipe)
+        self.lunch_frame = MealDisplayColumn(self, self.master_frame.lunch_recipe)
+        self.dinner_frame = MealDisplayColumn(self, self.master_frame.dinner_recipe)
         self.breakfast_frame.grid(row=3, column=0, sticky='nesw')
         self.lunch_frame.grid(row=3, column=1, sticky='nesw')
         self.dinner_frame.grid(row=3, column=2, sticky='nesw')
@@ -608,59 +623,59 @@ class MealsFrame(ttk.Frame):
         self.columnconfigure(0, weight=1)
 
     def breakfast_instructions(self):
-        open_instructions(self.breakfast_recipe.recipe_id)
+        open_instructions(self.master_frame.breakfast_recipe.recipe_id)
 
     def lunch_instructions(self):
-        open_instructions(self.lunch_recipe.recipe_id)
+        open_instructions(self.master_frame.lunch_recipe.recipe_id)
 
     def dinner_instructions(self):
-        open_instructions(self.dinner_recipe.recipe_id)
+        open_instructions(self.master_frame.dinner_recipe.recipe_id)
 
     def edit_breakfast(self):
-        self.master_frame.current_meal = "breakfasts"
+        self.master_frame.current_meal = "breakfast"
         self.master_frame.recipes = self.master_frame.breakfasts
-        self.master_frame.current_recipe = self.breakfast_recipe
+        self.master_frame.current_recipe = self.master_frame.breakfast_recipe
         self.master_frame.swap_frame('Home Frame')
 
     def edit_lunch(self):
         self.master_frame.current_meal = "lunch"
         self.master_frame.recipes = self.master_frame.lunches
-        self.master_frame.current_recipe = self.lunch_recipe
+        self.master_frame.current_recipe = self.master_frame.lunch_recipe
         self.master_frame.swap_frame('Home Frame')
 
     def edit_dinner(self):
         self.master_frame.current_meal = "dinner"
         self.master_frame.recipes = self.master_frame.dinners
-        self.master_frame.current_recipe = self.dinner_recipe
+        self.master_frame.current_recipe = self.master_frame.dinner_recipe
         self.master_frame.swap_frame('Home Frame')
 
     def random_breakfast(self):
         options = list(self.master_frame.breakfasts.values())
-        options.remove(self.breakfast_recipe)
+        options.remove(self.master_frame.breakfast_recipe)
         if options:
             new_recipe = choice(options)
             self.breakfast_frame.destroy()
-            self.breakfast_recipe = new_recipe
+            self.master_frame.breakfast_recipe = new_recipe
             self.breakfast_frame = MealDisplayColumn(self, new_recipe)
             self.breakfast_frame.grid(row=3, column=0, sticky='nesw')
 
     def random_lunch(self):
         options = list(self.master_frame.lunches.values())
-        options.remove(self.lunch_recipe)
+        options.remove(self.master_frame.lunch_recipe)
         if options:
             new_recipe = choice(options)
             self.lunch_frame.destroy()
-            self.lunch_recipe = new_recipe
+            self.master_frame.lunch_recipe = new_recipe
             self.lunch_frame = MealDisplayColumn(self, new_recipe)
             self.lunch_frame.grid(row=3, column=1, sticky='nesw')
 
     def random_dinner(self):
         options = list(self.master_frame.dinners.values())
-        options.remove(self.dinner_recipe)
+        options.remove(self.master_frame.dinner_recipe)
         if options:
             new_recipe = choice(options)
             self.dinner_frame.destroy()
-            self.dinner_recipe = new_recipe
+            self.master_frame.dinner_recipe = new_recipe
             self.dinner_frame = MealDisplayColumn(self, new_recipe)
             self.dinner_frame.grid(row=3, column=0, sticky='nesw')
 

@@ -4,7 +4,7 @@ import webbrowser
 from collections import namedtuple
 from typing import List
 
-db_conn = sqlite3.connect('recipes_info.sqlite', detect_types=sqlite3.PARSE_DECLTYPES)
+db_conn = sqlite3.connect('recipes_meals_info.sqlite', detect_types=sqlite3.PARSE_DECLTYPES)
 db_cur = db_conn.cursor()
 
 recipe_row = namedtuple('recipe_row', ['recipe_id', 'recipe_name', 'recipe_ingredients', 'recipe_image',
