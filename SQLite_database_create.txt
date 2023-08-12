@@ -1,0 +1,11 @@
+CREATE DATABASE recipes_meals_info.sqlite;
+CREATE TABLE recipes(
+recipe_id SERIAL PRIMARY KEY,
+recipe_name TEXT,
+recipe_ingredients TEXT,
+recipe_image TEXT,
+recipe_desc TEXT,
+recipe_instructions TEXT,
+instructions_type TEXT,
+meal_type TEXT
+);
